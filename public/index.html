@@ -1,0 +1,83 @@
+<body>
+<div id="app">
+  <model-three v-if="showModelThree" :src="src"></model-three>
+  <model-obj v-if="showModelObj" :src="src"></model-obj>
+  <model-obj v-if="showModelObjWithMtl" :src="src" :mtl="metadata"></model-obj>
+  <model-fbx v-if="showModelFbx" :src="src"></model-fbx>
+  <model-stl v-if="showModelStl" :src="src"></model-stl>
+  <model-collada v-if="showModelCollada" :backgroundAlpha="0" :rotation="rotation" :src="src"></model-collada>
+  <model-ply v-if="showModelPly" :src="src"></model-ply>
+  <model-gltf v-if="showModelGltf" :src="src"></model-gltf>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="vue-3d-model.min.js"></script>
+<script>
+  // window.onload = function () {
+  //
+  // }
+  window['vue-3d-model'].install(Vue)
+  new Vue({
+    el: '#app',
+    components: { ModelObj: window['vue-3d-model'].default.ModelObj },
+    data() {
+      return {
+        showModelThree: false,
+        showModelObj: false,
+        showModelObjWithMtl: false,
+        showModelFbx: false,
+        showModelStl: false,
+        showModelCollada: false,
+        showModelPly: false,
+        showModelGltf: false,
+        src: '',
+        metadata: '',
+        rotation: {
+          x: -Math.PI / 2,
+          y: 0,
+          z: 0,
+        }
+      }
+    },
+    created() {
+      var {src, metadata} = this.getQueryObj()
+      if (!src) {
+        console.error('src is not existed in query')
+        return;
+      }
+      this.src = src;
+      if (src.endsWith('.json')) {
+        this.showModelThree = true;
+      } else if (src.endsWith('.obj')) {
+        if (metadata && metadata.endsWith('.mtl')) {
+          this.showModelObjWithMtl = true;
+          this.metadata = metadata;
+        } else {
+          this.showModelObj = true;
+        }
+      } else if (src.endsWith('.fbx')) {
+        this.showModelFbx = true;
+      } else if (src.endsWith('.stl')) {
+        this.showModelStl = true;
+      } else if (src.endsWith('.dae')) {
+        this.showModelCollada = true;
+      } else if (src.endsWith('.ply')) {
+        this.showModelPly = true;
+      } else if (src.endsWith('.gltf')) {
+        console.log('show showModelGltf')
+        this.showModelGltf = true;
+      }
+    },
+    methods: {
+      getQueryObj() {
+        var qry = {}
+        var kvps = location.search.substr(1).split('&')
+        for (var kvp of kvps) {
+          const kvpParts = kvp.split('=')
+          qry[kvpParts[0]] = kvpParts[1]
+        }
+        return qry;
+      }
+    }
+  })
+</script>
+</body>
